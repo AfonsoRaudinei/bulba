@@ -1,0 +1,169 @@
+{
+  "description": "Dinâmica de pragas da soja por estádio (indivíduos/m² normalizado 0-100)",
+  "stages": {
+    "V0": {
+      "pests": {
+        "tripes": 0,
+        "lagartas": 0,
+        "mosca_branca": 0,
+        "percevejos": 0
+      },
+      "risk_level": "none"
+    },
+    "V2": {
+      "pests": {
+        "tripes": 20,
+        "lagartas": 1,
+        "mosca_branca": 5,
+        "percevejos": 0
+      },
+      "risk_level": "low",
+      "dominant": "tripes"
+    },
+    "V4": {
+      "pests": {
+        "tripes": 50,
+        "lagartas": 5,
+        "mosca_branca": 15,
+        "percevejos": 0
+      },
+      "risk_level": "moderate",
+      "dominant": "tripes",
+      "pattern": "Tripes dominam completamente"
+    },
+    "R1": {
+      "pests": {
+        "tripes": 63,
+        "lagartas": 15,
+        "mosca_branca": 32,
+        "percevejos": 1
+      },
+      "risk_level": "high",
+      "dominant": "tripes",
+      "pattern": "Pico inicial de tripes, mosca-branca em ascensão"
+    },
+    "R2": {
+      "pests": {
+        "tripes": 48,
+        "lagartas": 26,
+        "mosca_branca": 30,
+        "percevejos": 2
+      },
+      "risk_level": "high",
+      "dominant": "tripes",
+      "pattern": "Lagartas crescendo rapidamente"
+    },
+    "R3": {
+      "pests": {
+        "tripes": 43,
+        "lagartas": 35,
+        "mosca_branca": 25,
+        "percevejos": 14
+      },
+      "risk_level": "critical",
+      "dominant": "tripes",
+      "pattern": "PONTO DE VIRADA - lagartas quase alcançam tripes"
+    },
+    "R4": {
+      "pests": {
+        "tripes": 30,
+        "lagartas": 100,
+        "mosca_branca": 15,
+        "percevejos": 42
+      },
+      "risk_level": "extreme",
+      "dominant": "lagartas",
+      "pattern": "PERÍODO MAIS CRÍTICO - 95% do consumo foliar!"
+    },
+    "R5": {
+      "pests": {
+        "tripes": 20,
+        "lagartas": 85,
+        "mosca_branca": 10,
+        "percevejos": 63
+      },
+      "risk_level": "extreme",
+      "dominant": "lagartas",
+      "pattern": "Lagartas ainda dominam, percevejos crescendo"
+    },
+    "R6": {
+      "pests": {
+        "tripes": 15,
+        "lagartas": 57,
+        "mosca_branca": 5,
+        "percevejos": 81
+      },
+      "risk_level": "critical",
+      "dominant": "percevejos",
+      "pattern": "Transição - lagartas para percevejos"
+    },
+    "R7": {
+      "pests": {
+        "tripes": 10,
+        "lagartas": 37,
+        "mosca_branca": 2,
+        "percevejos": 100
+      },
+      "risk_level": "extreme",
+      "dominant": "percevejos",
+      "pattern": "VIRADA COMPLETA - percevejos assumem controle"
+    },
+    "R8": {
+      "pests": {
+        "tripes": 5,
+        "lagartas": 20,
+        "mosca_branca": 0,
+        "percevejos": 62
+      },
+      "risk_level": "high",
+      "dominant": "percevejos",
+      "pattern": "Percevejos dominam até o fim"
+    }
+  },
+  "pest_info": {
+    "tripes": {
+      "name": "Tripes",
+      "peak_stages": ["V4", "R1"],
+      "domain_period": "V2-R2",
+      "damage": "Sucção de seiva, deformação de folhas"
+    },
+    "lagartas": {
+      "name": "Lagartas",
+      "peak_stages": ["R4"],
+      "domain_period": "R4-R6",
+      "damage": "Desfolha intensa - 95% do consumo em R4"
+    },
+    "mosca_branca": {
+      "name": "Mosca-Branca",
+      "peak_stages": ["R1", "R2"],
+      "domain_period": "R1-R2",
+      "damage": "Sucção de seiva, transmissão de vírus"
+    },
+    "percevejos": {
+      "name": "Percevejos",
+      "peak_stages": ["R7"],
+      "domain_period": "R7-R8",
+      "damage": "Dano direto aos grãos, perda de qualidade"
+    }
+  },
+  "control_windows": [
+    {
+      "stage": "V4-R1",
+      "focus": "tripes",
+      "priority": "high",
+      "message": "Controle de tripes prioritário"
+    },
+    {
+      "stage": "R4",
+      "focus": "lagartas",
+      "priority": "critical",
+      "message": "EMERGÊNCIA - controle intensivo de lagartas"
+    },
+    {
+      "stage": "R7",
+      "focus": "percevejos",
+      "priority": "critical",
+      "message": "Controle intensivo para qualidade dos grãos"
+    }
+  ]
+}

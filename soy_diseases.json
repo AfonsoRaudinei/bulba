@@ -1,0 +1,198 @@
+{
+  "description": "Intensidade de doenças da soja por estádio (0-100 representa intensidade)",
+  "stages": {
+    "V0": {
+      "diseases": {
+        "mildio": 0,
+        "oidio": 0,
+        "crestamento_bacteriano": 0,
+        "pustula_bacteriana": 0,
+        "mofo_branco": 0,
+        "ferrugem_asiatica": 0,
+        "mancha_parda": 0,
+        "cercospora": 0,
+        "macrophomina": 0,
+        "antracnose": 0
+      },
+      "risk_level": "none"
+    },
+    "V2": {
+      "diseases": {
+        "mildio": 0,
+        "oidio": 0,
+        "crestamento_bacteriano": 5,
+        "pustula_bacteriana": 0,
+        "mofo_branco": 0,
+        "ferrugem_asiatica": 0,
+        "mancha_parda": 0,
+        "cercospora": 0,
+        "macrophomina": 0,
+        "antracnose": 0
+      },
+      "risk_level": "low",
+      "dominant": "crestamento_bacteriano"
+    },
+    "V4": {
+      "diseases": {
+        "mildio": 15,
+        "oidio": 1,
+        "crestamento_bacteriano": 12,
+        "pustula_bacteriana": 4,
+        "mofo_branco": 0,
+        "ferrugem_asiatica": 0,
+        "mancha_parda": 0,
+        "cercospora": 0,
+        "macrophomina": 0,
+        "antracnose": 0
+      },
+      "risk_level": "moderate",
+      "dominant": "mildio",
+      "pattern": "Início do ciclo - doenças bacterianas e míldio"
+    },
+    "R1": {
+      "diseases": {
+        "mildio": 25,
+        "oidio": 20,
+        "crestamento_bacteriano": 15,
+        "pustula_bacteriana": 8,
+        "mofo_branco": 5,
+        "ferrugem_asiatica": 0,
+        "mancha_parda": 0,
+        "cercospora": 0,
+        "macrophomina": 0,
+        "antracnose": 0
+      },
+      "risk_level": "high",
+      "dominant": "mildio",
+      "pattern": "Florescimento - míldio e oídio predominantes"
+    },
+    "R3": {
+      "diseases": {
+        "mildio": 18,
+        "oidio": 25,
+        "crestamento_bacteriano": 10,
+        "pustula_bacteriana": 10,
+        "mofo_branco": 28,
+        "ferrugem_asiatica": 35,
+        "mancha_parda": 0,
+        "cercospora": 0,
+        "macrophomina": 0,
+        "antracnose": 15
+      },
+      "risk_level": "critical",
+      "dominant": "ferrugem_asiatica",
+      "pattern": "Desenvolvimento de vagens - ferrugem acelera!"
+    },
+    "R4": {
+      "diseases": {
+        "mildio": 10,
+        "oidio": 40,
+        "crestamento_bacteriano": 5,
+        "pustula_bacteriana": 8,
+        "mofo_branco": 45,
+        "ferrugem_asiatica": 65,
+        "mancha_parda": 8,
+        "cercospora": 10,
+        "macrophomina": 15,
+        "antracnose": 20
+      },
+      "risk_level": "extreme",
+      "dominant": "ferrugem_asiatica",
+      "pattern": "PERÍODO MAIS CRÍTICO - ferrugem domina"
+    },
+    "R5": {
+      "diseases": {
+        "mildio": 5,
+        "oidio": 74,
+        "crestamento_bacteriano": 2,
+        "pustula_bacteriana": 5,
+        "mofo_branco": 40,
+        "ferrugem_asiatica": 85,
+        "mancha_parda": 20,
+        "cercospora": 30,
+        "macrophomina": 45,
+        "antracnose": 25
+      },
+      "risk_level": "extreme",
+      "dominant": "ferrugem_asiatica",
+      "pattern": "Enchimento de grãos - ferrugem no pico"
+    },
+    "R6": {
+      "diseases": {
+        "mildio": 0,
+        "oidio": 85,
+        "crestamento_bacteriano": 0,
+        "pustula_bacteriana": 2,
+        "mofo_branco": 30,
+        "ferrugem_asiatica": 95,
+        "mancha_parda": 45,
+        "cercospora": 55,
+        "macrophomina": 60,
+        "antracnose": 30
+      },
+      "risk_level": "extreme",
+      "dominant": "ferrugem_asiatica",
+      "pattern": "Grãos cheios - mancha parda e cercospora crescem"
+    },
+    "R7": {
+      "diseases": {
+        "mildio": 0,
+        "oidio": 99,
+        "crestamento_bacteriano": 0,
+        "pustula_bacteriana": 0,
+        "mofo_branco": 20,
+        "ferrugem_asiatica": 90,
+        "mancha_parda": 70,
+        "cercospora": 75,
+        "macrophomina": 70,
+        "antracnose": 35
+      },
+      "risk_level": "critical",
+      "dominant": "oidio",
+      "pattern": "Maturação - oídio atinge pico, cercospora e macrophomina"
+    },
+    "R8": {
+      "diseases": {
+        "mildio": 0,
+        "oidio": 85,
+        "crestamento_bacteriano": 0,
+        "pustula_bacteriana": 0,
+        "mofo_branco": 10,
+        "ferrugem_asiatica": 70,
+        "mancha_parda": 85,
+        "cercospora": 65,
+        "macrophomina": 85,
+        "antracnose": 40
+      },
+      "risk_level": "high",
+      "dominant": "macrophomina",
+      "pattern": "Final do ciclo - macrophomina e mancha parda assumem"
+    }
+  },
+  "disease_info": {
+    "mildio": {
+      "name": "Míldio",
+      "critical_stages": ["V4", "R1", "R3"]
+    },
+    "oidio": {
+      "name": "Oídio",
+      "critical_stages": ["R1", "R5", "R6", "R7"]
+    },
+    "ferrugem_asiatica": {
+      "name": "Ferrugem Asiática",
+      "critical_stages": ["R3", "R4", "R5", "R6"]
+    },
+    "mofo_branco": {
+      "name": "Mofo Branco",
+      "critical_stages": ["R3", "R4"]
+    },
+    "mancha_parda": {
+      "name": "Mancha Parda",
+      "critical_stages": ["R6", "R7", "R8"]
+    },
+    "macrophomina": {
+      "name": "Macrophomina",
+      "critical_stages": ["R7", "R8"]
+    }
+  }
+}

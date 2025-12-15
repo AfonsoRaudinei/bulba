@@ -1,0 +1,164 @@
+{
+  "description": "Demanda de nutrientes da soja por estádio (0-100 representa % da demanda total)",
+  "cultivar": "RR",
+  "stages": {
+    "V0": {
+      "code": "V0",
+      "label": "Plantio",
+      "days": 0,
+      "nutrients": {
+        "nitrogen": 0,
+        "phosphorus": 0,
+        "potassium": 0,
+        "calcium": 0,
+        "magnesium": 0,
+        "iron": 0,
+        "zinc": 0,
+        "boron": 0
+      }
+    },
+    "V2": {
+      "code": "V2",
+      "label": "Primeira folha trifoliolada",
+      "days": 10,
+      "nutrients": {
+        "nitrogen": 2,
+        "phosphorus": 4,
+        "potassium": 3,
+        "calcium": 5,
+        "magnesium": 3,
+        "iron": 2,
+        "zinc": 5,
+        "boron": 2
+      }
+    },
+    "V4": {
+      "code": "V4",
+      "label": "Quarta folha trifoliolada",
+      "days": 20,
+      "critical": true,
+      "nutrients": {
+        "nitrogen": 8,
+        "phosphorus": 11,
+        "potassium": 9,
+        "calcium": 14,
+        "magnesium": 10,
+        "iron": 8,
+        "zinc": 8,
+        "boron": 7
+      },
+      "warning": "Primeira explosão de demanda - janela crítica para correções"
+    },
+    "R1": {
+      "code": "R1",
+      "label": "Início do florescimento",
+      "days": 40,
+      "critical": true,
+      "nutrients": {
+        "nitrogen": 53,
+        "phosphorus": 45,
+        "potassium": 53,
+        "calcium": 59,
+        "magnesium": 48,
+        "iron": 55,
+        "zinc": 52,
+        "boron": 47
+      },
+      "warning": "Metade dos nutrientes já absorvida - momento crucial"
+    },
+    "R3": {
+      "code": "R3",
+      "label": "Formação de vagens",
+      "days": 55,
+      "critical": true,
+      "nutrients": {
+        "nitrogen": 70,
+        "phosphorus": 73,
+        "potassium": 75,
+        "calcium": 81,
+        "magnesium": 79,
+        "iron": 77,
+        "zinc": 75,
+        "boron": 80
+      },
+      "warning": "80% absorvido - última chance real de correção"
+    },
+    "R5": {
+      "code": "R5",
+      "label": "Enchimento de grãos",
+      "days": 70,
+      "nutrients": {
+        "nitrogen": 88,
+        "phosphorus": 90,
+        "potassium": 92,
+        "calcium": 95,
+        "magnesium": 93,
+        "iron": 95,
+        "zinc": 95,
+        "boron": 90
+      }
+    },
+    "R6": {
+      "code": "R6",
+      "label": "Grãos cheios",
+      "days": 85,
+      "nutrients": {
+        "nitrogen": 95,
+        "phosphorus": 96,
+        "potassium": 97,
+        "calcium": 97,
+        "magnesium": 97,
+        "iron": 97,
+        "zinc": 97,
+        "boron": 92
+      }
+    },
+    "R7": {
+      "code": "R7",
+      "label": "Início da maturação",
+      "days": 100,
+      "nutrients": {
+        "nitrogen": 98,
+        "phosphorus": 98,
+        "potassium": 99,
+        "calcium": 99,
+        "magnesium": 99,
+        "iron": 99,
+        "zinc": 99,
+        "boron": 98
+      }
+    },
+    "R8": {
+      "code": "R8",
+      "label": "Maturação plena",
+      "days": 115,
+      "nutrients": {
+        "nitrogen": 100,
+        "phosphorus": 100,
+        "potassium": 100,
+        "calcium": 100,
+        "magnesium": 100,
+        "iron": 100,
+        "zinc": 100,
+        "boron": 100
+      }
+    }
+  },
+  "critical_windows": [
+    {
+      "stage": "V4",
+      "risk": "high",
+      "message": "Planta 'acorda' - demanda dispara de 2-4% para 8-16%"
+    },
+    {
+      "stage": "R1",
+      "risk": "critical",
+      "message": "Explosão de demanda - 40-60% absorvido"
+    },
+    {
+      "stage": "R3",
+      "risk": "extreme",
+      "message": "Corrida contra o tempo - 75-85% absorvido"
+    }
+  ]
+}
