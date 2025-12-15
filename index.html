@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fazenda do Produtor 🌱 Bulba</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app">
+    <!-- Header -->
+    <header class="header">
+      <h1>🌱 Fazenda do Produtor</h1>
+      <div class="header-info">
+        <div class="info-badge">
+          <span class="label">Estádio:</span>
+          <span id="soy-stage" class="value">V0 - Plantio</span>
+        </div>
+        <div class="info-badge">
+          <span class="label">Dia:</span>
+          <span id="day-counter" class="value">0</span>
+        </div>
+        <div class="info-badge">
+          <span class="label">Produtividade:</span>
+          <span id="productivity" class="value">-- sc/ha</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="main">
+      
+      <!-- Painel da Lavoura -->
+      <section class="farm-panel">
+        <h2>🌾 Lavoura de Soja</h2>
+        
+        <!-- Campo visual -->
+        <div id="field-visual" class="field-visual">
+          <div class="sky-layer"></div>
+          <div class="field-layer soil"></div>
+          <div class="field-layer crop crop-stage-0" id="crop-layer"></div>
+        </div>
+
+        <!-- Saúde da lavoura -->
+        <div class="health-section">
+          <h3>📊 Saúde da Lavoura</h3>
+          
+          <!-- Nutrição -->
+          <div class="health-row">
+            <div class="health-label">
+              <span class="icon">💚</span>
+              <span>Nutrição</span>
+            </div>
+            <div class="health-bar-container">
+              <div id="nutrition-bar" class="health-bar nutrition-bar" style="width: 100%;"></div>
+              <span id="nutrition-value" class="health-value">100%</span>
+            </div>
+          </div>
+
+          <!-- Doenças -->
+          <div class="health-row">
+            <div class="health-label">
+              <span class="icon">🦠</span>
+              <span>Doenças</span>
+            </div>
+            <div class="health-bar-container">
+              <div id="disease-bar" class="health-bar disease-bar" style="width: 0%;"></div>
+              <span id="disease-value" class="health-value">0%</span>
+            </div>
+          </div>
+
+          <!-- Pragas -->
+          <div class="health-row">
+            <div class="health-label">
+              <span class="icon">🐛</span>
+              <span>Pragas</span>
+            </div>
+            <div class="health-bar-container">
+              <div id="pest-bar" class="health-bar pest-bar" style="width: 0%;"></div>
+              <span id="pest-value" class="health-value">0%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Avisos críticos -->
+        <div id="warning-panel" class="warning-panel hidden"></div>
+
+        <!-- Botão principal -->
+        <button id="advance-day-btn" class="primary-btn">
+          ⏭️ Avançar tempo
+        </button>
+      </section>
+
+      <!-- Painel do Bulbasauro -->
+      <section class="pet-panel">
+        <h2>🌿 Bulba</h2>
+        
+        <!-- Card do pet -->
+        <div class="pet-card">
+          <div class="pet-avatar">
+            <div class="bulba-sprite"></div>
+          </div>
+          <div class="pet-status">
+            <!-- Energia -->
+            <div class="status-row">
+              <span class="status-label">⚡ Energia</span>
+              <div class="status-bar-bg">
+                <div id="energy-bar" class="status-bar energy-bar" style="width: 100%;"></div>
+              </div>
+              <span id="energy-value" class="status-value">100%</span>
+            </div>
+            
+            <!-- Humor -->
+            <div class="status-row">
+              <span class="status-label">😊 Humor</span>
+              <div class="status-bar-bg">
+                <div id="mood-bar" class="status-bar mood-bar" style="width: 100%;"></div>
+              </div>
+              <span id="mood-value" class="status-value">100%</span>
+            </div>
+
+            <!-- Confiança -->
+            <div class="status-row">
+              <span class="status-label">🤝 Confiança</span>
+              <div class="status-bar-bg">
+                <div id="trust-bar" class="status-bar trust-bar" style="width: 50%;"></div>
+              </div>
+              <span id="trust-value" class="status-value">50%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Estado emocional do Bulbasauro -->
+        <div id="bulba-mood-text" class="bulba-mood">
+          🌟 Bulbasauro está animado para começar!
+        </div>
+
+        <!-- Ações do pet -->
+        <div class="pet-actions">
+          <button id="feed-btn" class="action-btn">
+            🍎 Alimentar Bulba
+          </button>
+          <button id="play-btn" class="action-btn">
+            🎮 Brincar com Bulba
+          </button>
+          <button id="inspect-btn" class="action-btn">
+            🔍 Inspecionar lavoura
+          </button>
+        </div>
+
+        <!-- Log de mensagens -->
+        <div class="log-section">
+          <h3>📝 Diário da Fazenda</h3>
+          <ul id="log-list" class="log-list"></ul>
+        </div>
+      </section>
+    </main>
+
+    <!-- Modal de detalhes (futuro) -->
+    <div id="modal" class="modal hidden">
+      <div class="modal-content">
+        <span class="modal-close">&times;</span>
+        <div id="modal-body"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>
