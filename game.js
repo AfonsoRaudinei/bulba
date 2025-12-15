@@ -104,9 +104,9 @@ const elements = {
 async function loadGameData() {
   try {
     const [nutrientsRes, diseasesRes, pestsRes] = await Promise.all([
-      fetch('data/soy_nutrients.json'),
-      fetch('data/soy_diseases.json'),
-      fetch('data/soy_pests.json')
+      fetch('soy_nutrients.json'),
+      fetch('soy_diseases.json'),
+      fetch('soy_pests.json')
     ]);
     
     gameState.nutrients = await nutrientsRes.json();
