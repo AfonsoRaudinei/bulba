@@ -3,166 +3,284 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fazenda do Produtor 🌱 Bulba</title>
+  <title>Fazenda Brasil - Simulador de Soja</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="app">
-    <!-- Header -->
-    <header class="header">
-      <h1>🌱 Fazenda do Produtor</h1>
-      <div class="header-info">
-        <div class="info-badge">
-          <span class="label">Estádio:</span>
-          <span id="soy-stage" class="value">V0 - Plantio</span>
+  <div class="game-container">
+    
+    <!-- Top Bar -->
+    <header class="top-bar">
+      <div class="farm-info">
+        <div class="farm-badge">
+          <span class="farm-icon">🏡</span>
+          <span class="farm-name" id="farm-name">Fazenda Brasil</span>
         </div>
-        <div class="info-badge">
-          <span class="label">Dia:</span>
-          <span id="day-counter" class="value">0</span>
+        <div class="level-badge">
+          <span class="star-icon">⭐</span>
+          <span id="player-level">Nível 1</span>
         </div>
-        <div class="info-badge">
-          <span class="label">Produtividade:</span>
-          <span id="productivity" class="value">-- sc/ha</span>
+      </div>
+      
+      <div class="resources-bar">
+        <div class="resource-item gold">
+          <span class="resource-icon">💰</span>
+          <span id="gold-amount">5.000</span>
+        </div>
+        <div class="resource-item premium">
+          <span class="resource-icon">💎</span>
+          <span id="premium-amount">50</span>
+        </div>
+        <div class="resource-item xp">
+          <span class="resource-icon">⚡</span>
+          <span id="xp-amount">0 / 100</span>
+        </div>
+      </div>
+      
+      <div class="time-info">
+        <div class="climate-badge" id="climate">
+          <span class="weather-icon">☀️</span>
+          <span id="temperature">28°C</span>
+        </div>
+        <div class="season-badge" id="season">
+          🌱 Primavera
         </div>
       </div>
     </header>
 
-    <!-- Main Container -->
-    <main class="main">
+    <!-- Main Game Area -->
+    <main class="game-area">
       
-      <!-- Painel da Lavoura -->
-      <section class="farm-panel">
-        <h2>🌾 Lavoura de Soja</h2>
-        
-        <!-- Campo visual -->
-        <div id="field-visual" class="field-visual">
-          <div class="sky-layer"></div>
-          <div class="field-layer soil"></div>
-          <div class="field-layer crop crop-stage-0" id="crop-layer"></div>
+      <!-- Left Sidebar - Menu -->
+      <aside class="left-sidebar">
+        <div class="menu-panel">
+          <h3>📋 Menu</h3>
+          <button class="menu-btn active" data-tab="farm">
+            <span class="btn-icon">🏡</span>
+            <span>Fazenda</span>
+          </button>
+          <button class="menu-btn" data-tab="crops">
+            <span class="btn-icon">🌾</span>
+            <span>Plantações</span>
+          </button>
+          <button class="menu-btn" data-tab="equipment">
+            <span class="btn-icon">🚜</span>
+            <span>Equipamentos</span>
+          </button>
+          <button class="menu-btn" data-tab="workers">
+            <span class="btn-icon">👷</span>
+            <span>Trabalhadores</span>
+          </button>
+          <button class="menu-btn" data-tab="market">
+            <span class="btn-icon">📊</span>
+            <span>Mercado</span>
+          </button>
+          <button class="menu-btn" data-tab="tech">
+            <span class="btn-icon">🔬</span>
+            <span>Tecnologia</span>
+          </button>
         </div>
 
-        <!-- Saúde da lavoura -->
-        <div class="health-section">
-          <h3>📊 Saúde da Lavoura</h3>
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+          <h4>⚡ Ações Rápidas</h4>
+          <button class="action-btn" id="plant-btn">
+            <span>🌱</span> Plantar
+          </button>
+          <button class="action-btn" id="harvest-btn">
+            <span>🚜</span> Colher
+          </button>
+          <button class="action-btn" id="fertilize-btn">
+            <span>💧</span> Aplicar
+          </button>
+        </div>
+      </aside>
+
+      <!-- Farm View - Isometric -->
+      <section class="farm-view">
+        <div class="farm-canvas" id="farm-canvas">
           
-          <!-- Nutrição -->
-          <div class="health-row">
-            <div class="health-label">
-              <span class="icon">💚</span>
-              <span>Nutrição</span>
-            </div>
-            <div class="health-bar-container">
-              <div id="nutrition-bar" class="health-bar nutrition-bar" style="width: 100%;"></div>
-              <span id="nutrition-value" class="health-value">100%</span>
-            </div>
+          <!-- Sky and Background -->
+          <div class="background-layer">
+            <div class="sky"></div>
+            <div class="clouds"></div>
+            <div class="horizon"></div>
           </div>
 
-          <!-- Doenças -->
-          <div class="health-row">
-            <div class="health-label">
-              <span class="icon">🦠</span>
-              <span>Doenças</span>
-            </div>
-            <div class="health-bar-container">
-              <div id="disease-bar" class="health-bar disease-bar" style="width: 0%;"></div>
-              <span id="disease-value" class="health-value">0%</span>
-            </div>
-          </div>
-
-          <!-- Pragas -->
-          <div class="health-row">
-            <div class="health-label">
-              <span class="icon">🐛</span>
-              <span>Pragas</span>
-            </div>
-            <div class="health-bar-container">
-              <div id="pest-bar" class="health-bar pest-bar" style="width: 0%;"></div>
-              <span id="pest-value" class="health-value">0%</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Avisos críticos -->
-        <div id="warning-panel" class="warning-panel hidden"></div>
-
-        <!-- Botão principal -->
-        <button id="advance-day-btn" class="primary-btn">
-          ⏭️ Avançar tempo
-        </button>
-      </section>
-
-      <!-- Painel do Bulba -->
-      <section class="pet-panel">
-        <h2>🌿 Bulba</h2>
-        
-        <!-- Card do pet -->
-        <div class="pet-card">
-          <div class="pet-avatar">
-            <div class="bulba-sprite"></div>
-          </div>
-          <div class="pet-status">
-            <!-- Energia -->
-            <div class="status-row">
-              <span class="status-label">⚡ Energia</span>
-              <div class="status-bar-bg">
-                <div id="energy-bar" class="status-bar energy-bar" style="width: 100%;"></div>
-              </div>
-              <span id="energy-value" class="status-value">100%</span>
+          <!-- Farm Buildings -->
+          <div class="buildings-layer">
+            <div class="building house" style="grid-area: 2 / 2 / 4 / 4;">
+              <div class="building-sprite house-sprite"></div>
+              <div class="building-label">Casa Sede</div>
             </div>
             
-            <!-- Humor -->
-            <div class="status-row">
-              <span class="status-label">😊 Humor</span>
-              <div class="status-bar-bg">
-                <div id="mood-bar" class="status-bar mood-bar" style="width: 100%;"></div>
-              </div>
-              <span id="mood-value" class="status-value">100%</span>
+            <div class="building barn" style="grid-area: 2 / 6 / 4 / 8;">
+              <div class="building-sprite barn-sprite"></div>
+              <div class="building-label">Galpão</div>
             </div>
 
-            <!-- Confiança -->
-            <div class="status-row">
-              <span class="status-label">🤝 Confiança</span>
-              <div class="status-bar-bg">
-                <div id="trust-bar" class="status-bar trust-bar" style="width: 50%;"></div>
+            <div class="building silo" style="grid-area: 2 / 10 / 3 / 11;">
+              <div class="building-sprite silo-sprite"></div>
+              <div class="building-label">Silo</div>
+            </div>
+          </div>
+
+          <!-- Crop Fields -->
+          <div class="fields-layer" id="fields-layer">
+            <!-- Fields will be generated by JS -->
+          </div>
+
+          <!-- Workers and Equipment -->
+          <div class="units-layer" id="units-layer">
+            <!-- Animated units -->
+          </div>
+
+        </div>
+
+        <!-- Field Info Panel -->
+        <div class="field-info-panel hidden" id="field-info">
+          <div class="panel-header">
+            <h3>📊 Talhão Selecionado</h3>
+            <button class="close-btn">&times;</button>
+          </div>
+          <div class="panel-content">
+            <div class="info-row">
+              <span class="label">Status:</span>
+              <span class="value" id="field-status">Preparado</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Cultura:</span>
+              <span class="value" id="field-crop">Soja RR</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Estádio:</span>
+              <span class="value" id="field-stage">V0 - Plantio</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Dias:</span>
+              <span class="value" id="field-days">0</span>
+            </div>
+            <div class="health-bars">
+              <div class="health-item">
+                <span>💚 Nutrição</span>
+                <div class="mini-bar"><div class="mini-fill nutrition" style="width: 100%"></div></div>
+                <span>100%</span>
               </div>
-              <span id="trust-value" class="status-value">50%</span>
+              <div class="health-item">
+                <span>🦠 Doenças</span>
+                <div class="mini-bar"><div class="mini-fill disease" style="width: 0%"></div></div>
+                <span>0%</span>
+              </div>
+              <div class="health-item">
+                <span>🐛 Pragas</span>
+                <div class="mini-bar"><div class="mini-fill pest" style="width: 0%"></div></div>
+                <span>0%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right Sidebar - Info & Tasks -->
+      <aside class="right-sidebar">
+        
+        <!-- Bulba Companion -->
+        <div class="companion-panel">
+          <h3>🌿 Bulba - Seu Assistente</h3>
+          <div class="companion-avatar">
+            <div class="bulba-large"></div>
+          </div>
+          <div class="companion-stats">
+            <div class="stat-mini">
+              <span>⚡</span>
+              <div class="stat-bar"><div class="stat-fill" style="width: 100%"></div></div>
+            </div>
+            <div class="stat-mini">
+              <span>😊</span>
+              <div class="stat-bar"><div class="stat-fill" style="width: 100%"></div></div>
+            </div>
+          </div>
+          <div class="companion-message" id="bulba-message">
+            💬 Olá! Pronto para começar a safra de soja?
+          </div>
+          <div class="companion-actions">
+            <button class="mini-btn">🍎</button>
+            <button class="mini-btn">🎮</button>
+            <button class="mini-btn">💬</button>
+          </div>
+        </div>
+
+        <!-- Tasks & Missions -->
+        <div class="tasks-panel">
+          <h3>🎯 Missões Ativas</h3>
+          <div class="task-list" id="task-list">
+            <div class="task-item">
+              <div class="task-icon">🌱</div>
+              <div class="task-info">
+                <div class="task-title">Primeira Plantação</div>
+                <div class="task-desc">Plante soja no Talhão A</div>
+                <div class="task-progress">
+                  <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                  <span>0/1</span>
+                </div>
+              </div>
+              <div class="task-reward">+50 XP</div>
+            </div>
+            
+            <div class="task-item">
+              <div class="task-icon">⏱️</div>
+              <div class="task-info">
+                <div class="task-title">Avançar 10 Dias</div>
+                <div class="task-desc">Complete um ciclo de crescimento</div>
+                <div class="task-progress">
+                  <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                  <span>0/10</span>
+                </div>
+              </div>
+              <div class="task-reward">+100 XP</div>
             </div>
           </div>
         </div>
 
-        <!-- Estado emocional do Bulba -->
-        <div id="bulba-mood-text" class="bulba-mood">
-          🌟 Bulba está animado para começar!
+        <!-- Activity Log -->
+        <div class="log-panel">
+          <h3>📜 Atividades Recentes</h3>
+          <div class="log-list" id="activity-log">
+            <div class="log-entry">
+              <span class="log-icon">🎮</span>
+              <span class="log-text">Jogo iniciado - Bem-vindo à Fazenda Brasil!</span>
+            </div>
+          </div>
         </div>
 
-        <!-- Ações do pet -->
-        <div class="pet-actions">
-          <button id="feed-btn" class="action-btn">
-            🍎 Alimentar Bulba
-          </button>
-          <button id="play-btn" class="action-btn">
-            🎮 Brincar com Bulba
-          </button>
-          <button id="inspect-btn" class="action-btn">
-            🔍 Inspecionar lavoura
-          </button>
-        </div>
+      </aside>
 
-        <!-- Log de mensagens -->
-        <div class="log-section">
-          <h3>📝 Diário da Fazenda</h3>
-          <ul id="log-list" class="log-list"></ul>
-        </div>
-      </section>
     </main>
 
-    <!-- Modal de detalhes (futuro) -->
-    <div id="modal" class="modal hidden">
-      <div class="modal-content">
-        <span class="modal-close">&times;</span>
-        <div id="modal-body"></div>
+    <!-- Bottom Control Bar -->
+    <footer class="bottom-bar">
+      <div class="time-controls">
+        <button class="time-btn" id="pause-btn">⏸️ Pausar</button>
+        <button class="time-btn primary" id="advance-btn">⏭️ Avançar Tempo</button>
+        <button class="time-btn" id="speed-btn">⏩ 2x</button>
       </div>
-    </div>
+      
+      <div class="game-stats">
+        <div class="stat-item">
+          <span class="stat-label">Dia do Ciclo:</span>
+          <span class="stat-value" id="cycle-day">0</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Produção Estimada:</span>
+          <span class="stat-value" id="production">0 sc/ha</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Lucro Atual:</span>
+          <span class="stat-value profit" id="profit">R$ 0</span>
+        </div>
+      </div>
+    </footer>
+
   </div>
 
   <script src="game.js"></script>
