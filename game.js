@@ -1,319 +1,106 @@
-// =============================================
-// FAZENDA BRASIL - GAME ENGINE
-// Simulador Profissional de Soja Brasileira
-// =============================================
-
-// =============================================
+// ============================================
 // ESTADO DO JOGO
-// =============================================
+// ============================================
 const gameState = {
-  player: {
-    name: 'Produtor',
-    level: 1,
-    xp: 0,
-    xpToNext: 100,
-    gold: 5000,
-    premium: 50
+  currentDay: 0,
+  currentStage: 'V0',
+  stageIndex: 0,
+  
+  // Saúde da lavoura (0-100)
+  cropHealth: {
+    nutrition: 100,      // Quanto maior, melhor
+    disease: 0,          // Quanto maior, pior
+    pest: 0              // Quanto maior, pior
   },
   
-  farm: {
-    name: 'Fazenda Brasil',
-    size: 12,
-    fields: [],
-    buildings: []
-  },
-  
-  time: {
-    day: 0,
-    season: 'primavera',
-    weather: 'ensolarado',
-    temperature: 28,
-    speed: 1,
-    paused: false
-  },
-  
-  bulba: {
+  // Bulbasauro
+  bulbasaur: {
     energy: 100,
     mood: 100,
     trust: 50
   },
   
-  resources: {
-    seeds: 100,
-    fertilizer: 50,
-    pesticide: 30
-  },
+  // Produtividade estimada
+  productivity: 0,
   
-  economy: {
-    totalProduction: 0,
-    totalRevenue: 0,
-    totalCost: 0,
-    profit: 0
-  },
-  
-  tasks: [],
-  activityLog: [],
-  
-  // Dados de referência
+  // Dados carregados
   nutrients: null,
   diseases: null,
   pests: null
 };
 
-// =============================================
-// CONFIGURAÇÕES DO JOGO
-// =============================================
-const CONFIG = {
-  // Ciclo da Soja
-  soyStages: {
-    'V0': { days: 0, label: 'Plantio', visualClass: 'soil' },
-    'V2': { days: 10, label: '1ª Folha Trifoliolada', visualClass: 'seedling' },
-    'V4': { days: 20, label: '4ª Folha Trifoliolada', visualClass: 'vegetative' },
-    'R1': { days: 40, label: 'Início Florescimento', visualClass: 'flowering' },
-    'R3': { days: 55, label: 'Formação de Vagens', visualClass: 'pod-formation' },
-    'R5': { days: 70, label: 'Enchimento de Grãos', visualClass: 'grain-filling' },
-    'R6': { days: 85, label: 'Grãos Cheios', visualClass: 'mature' },
-    'R7': { days: 100, label: 'Maturação', visualClass: 'mature' },
-    'R8': { days: 115, label: 'Maturação Plena', visualClass: 'harvest-ready' }
-  },
-  
-  // Preços e custos
-  prices: {
-    soySack: 120, // R$ por saca
-    seeds: 150, // R$ por unidade de semente
-    fertilizer: 80,
-    pesticide: 100
-  },
-  
-  // Clima brasileiro
-  climates: [
-    { type: 'ensolarado', icon: '☀️', temp: [25, 32] },
-    { type: 'nublado', icon: '☁️', temp: [20, 26] },
-    { type: 'chuvoso', icon: '🌧️', temp: [18, 24] }
-  ],
-  
-  // Estações
-  seasons: [
-    { name: 'primavera', icon: '🌱', months: [9, 10, 11] },
-    { name: 'verão', icon: '☀️', months: [12, 1, 2] },
-    { name: 'outono', icon: '🍂', months: [3, 4, 5] },
-    { name: 'inverno', icon: '❄️', months: [6, 7, 8] }
-  ]
+// Ordem dos estádios
+const stageOrder = ['V0', 'V2', 'V4', 'R1', 'R3', 'R5', 'R6', 'R7', 'R8'];
+
+// Mapeamento de dias por estádio (simplificado para o jogo)
+const stageDays = {
+  'V0': 0,
+  'V2': 10,
+  'V4': 20,
+  'R1': 40,
+  'R3': 55,
+  'R5': 70,
+  'R6': 85,
+  'R7': 100,
+  'R8': 115
 };
 
-// =============================================
-// ELEMENTOS DOM
-// =============================================
+// Classes visuais para os estádios
+const stageClasses = {
+  'V0': 'crop-stage-0',
+  'V2': 'crop-stage-1',
+  'V4': 'crop-stage-2',
+  'R1': 'crop-stage-3',
+  'R3': 'crop-stage-4',
+  'R5': 'crop-stage-4',
+  'R6': 'crop-stage-5',
+  'R7': 'crop-stage-5',
+  'R8': 'crop-stage-5'
+};
+
+// ============================================
+// ELEMENTOS DO DOM
+// ============================================
 const elements = {
-  // Top Bar
-  farmName: document.getElementById('farm-name'),
-  playerLevel: document.getElementById('player-level'),
-  goldAmount: document.getElementById('gold-amount'),
-  premiumAmount: document.getElementById('premium-amount'),
-  xpAmount: document.getElementById('xp-amount'),
-  climate: document.getElementById('climate'),
-  temperature: document.getElementById('temperature'),
-  season: document.getElementById('season'),
+  // Header
+  dayCounter: document.getElementById('day-counter'),
+  soyStage: document.getElementById('soy-stage'),
+  productivity: document.getElementById('productivity'),
   
-  // Farm Canvas
-  farmCanvas: document.getElementById('farm-canvas'),
-  fieldsLayer: document.getElementById('fields-layer'),
-  unitsLayer: document.getElementById('units-layer'),
+  // Campo
+  cropLayer: document.getElementById('crop-layer'),
   
-  // Field Info Panel
-  fieldInfo: document.getElementById('field-info'),
-  fieldStatus: document.getElementById('field-status'),
-  fieldCrop: document.getElementById('field-crop'),
-  fieldStage: document.getElementById('field-stage'),
-  fieldDays: document.getElementById('field-days'),
+  // Saúde da lavoura
+  nutritionBar: document.getElementById('nutrition-bar'),
+  nutritionValue: document.getElementById('nutrition-value'),
+  diseaseBar: document.getElementById('disease-bar'),
+  diseaseValue: document.getElementById('disease-value'),
+  pestBar: document.getElementById('pest-bar'),
+  pestValue: document.getElementById('pest-value'),
+  warningPanel: document.getElementById('warning-panel'),
   
-  // Bulba
-  bulbaMessage: document.getElementById('bulba-message'),
+  // Bulbasauro
+  energyBar: document.getElementById('energy-bar'),
+  energyValue: document.getElementById('energy-value'),
+  moodBar: document.getElementById('mood-bar'),
+  moodValue: document.getElementById('mood-value'),
+  trustBar: document.getElementById('trust-bar'),
+  trustValue: document.getElementById('trust-value'),
+  bulbaMoodText: document.getElementById('bulba-mood-text'),
   
-  // Tasks & Log
-  taskList: document.getElementById('task-list'),
-  activityLog: document.getElementById('activity-log'),
+  // Botões
+  advanceBtn: document.getElementById('advance-day-btn'),
+  feedBtn: document.getElementById('feed-btn'),
+  playBtn: document.getElementById('play-btn'),
+  inspectBtn: document.getElementById('inspect-btn'),
   
-  // Bottom Bar
-  cycleDay: document.getElementById('cycle-day'),
-  production: document.getElementById('production'),
-  profit: document.getElementById('profit'),
-  
-  // Buttons
-  pauseBtn: document.getElementById('pause-btn'),
-  advanceBtn: document.getElementById('advance-btn'),
-  speedBtn: document.getElementById('speed-btn'),
-  plantBtn: document.getElementById('plant-btn'),
-  harvestBtn: document.getElementById('harvest-btn'),
-  fertilizeBtn: document.getElementById('fertilize-btn')
+  // Log
+  logList: document.getElementById('log-list')
 };
 
-// =============================================
-// CLASSE FIELD (Talhão)
-// =============================================
-class Field {
-  constructor(id, row, col, size = 1) {
-    this.id = id;
-    this.row = row;
-    this.col = col;
-    this.size = size;
-    this.status = 'empty'; // empty, planted, growing, ready, harvested
-    this.crop = null;
-    this.stage = 'V0';
-    this.days = 0;
-    this.health = {
-      nutrition: 100,
-      disease: 0,
-      pest: 0
-    };
-    this.element = null;
-    
-    this.create();
-  }
-  
-  create() {
-    this.element = document.createElement('div');
-    this.element.className = 'field';
-    this.element.dataset.fieldId = this.id;
-    this.element.style.gridArea = `${this.row} / ${this.col} / ${this.row + this.size} / ${this.col + this.size}`;
-    
-    // Status badge
-    const badge = document.createElement('div');
-    badge.className = 'field-status-badge';
-    badge.textContent = this.getStatusLabel();
-    this.element.appendChild(badge);
-    
-    // Events
-    this.element.addEventListener('click', () => this.onClick());
-    
-    elements.fieldsLayer.appendChild(this.element);
-  }
-  
-  onClick() {
-    showFieldInfo(this);
-  }
-  
-  plant(cropType = 'soja-rr') {
-    if (this.status !== 'empty') return false;
-    
-    this.status = 'planted';
-    this.crop = cropType;
-    this.stage = 'V0';
-    this.days = 0;
-    this.updateVisual();
-    
-    logActivity('🌱', `Talhão ${this.id} plantado com ${cropType}`);
-    return true;
-  }
-  
-  advance(days = 1) {
-    if (this.status !== 'planted' && this.status !== 'growing') return;
-    
-    this.days += days;
-    this.updateStage();
-    this.updateHealth();
-    this.updateVisual();
-  }
-  
-  updateStage() {
-    const stages = Object.keys(CONFIG.soyStages);
-    for (let i = stages.length - 1; i >= 0; i--) {
-      if (this.days >= CONFIG.soyStages[stages[i]].days) {
-        const newStage = stages[i];
-        if (newStage !== this.stage) {
-          this.stage = newStage;
-          logActivity('📊', `Talhão ${this.id}: ${CONFIG.soyStages[newStage].label}`);
-        }
-        break;
-      }
-    }
-    
-    this.status = (this.stage === 'R8') ? 'ready' : 'growing';
-  }
-  
-  updateHealth() {
-    // Integrar com dados de nutrientes, doenças e pragas
-    if (!gameState.nutrients) return;
-    
-    const stageData = gameState.nutrients.stages[this.stage];
-    if (!stageData) return;
-    
-    // Nutrição decresce com absorção
-    const avgAbsorption = (
-      stageData.nutrients.nitrogen +
-      stageData.nutrients.phosphorus +
-      stageData.nutrients.potassium +
-      stageData.nutrients.calcium
-    ) / 4;
-    
-    this.health.nutrition = Math.max(0, 100 - avgAbsorption);
-    
-    // Doenças
-    const diseaseData = gameState.diseases?.stages[this.stage];
-    if (diseaseData) {
-      const maxDisease = Math.max(...Object.values(diseaseData.diseases));
-      this.health.disease = Math.min(100, maxDisease);
-    }
-    
-    // Pragas
-    const pestData = gameState.pests?.stages[this.stage];
-    if (pestData) {
-      const maxPest = Math.max(...Object.values(pestData.pests));
-      this.health.pest = Math.min(100, maxPest);
-    }
-  }
-  
-  harvest() {
-    if (this.status !== 'ready') return 0;
-    
-    // Calcular produtividade baseada na saúde
-    const baseProduction = 60; // sc/ha
-    let production = baseProduction;
-    
-    production += (this.health.nutrition / 100) * 30;
-    production -= (this.health.disease / 100) * 20;
-    production -= (this.health.pest / 100) * 15;
-    
-    production = Math.max(0, Math.min(120, production));
-    
-    const revenue = production * CONFIG.prices.soySack;
-    
-    this.status = 'empty';
-    this.crop = null;
-    this.stage = 'V0';
-    this.days = 0;
-    this.health = { nutrition: 100, disease: 0, pest: 0 };
-    this.updateVisual();
-    
-    logActivity('🚜', `Talhão ${this.id} colhido: ${production.toFixed(1)} sc/ha - R$ ${revenue.toFixed(2)}`);
-    
-    return { production, revenue };
-  }
-  
-  updateVisual() {
-    const statusClass = this.status === 'planted' || this.status === 'growing' ? 'planted' : '';
-    const matureClass = this.status === 'ready' ? 'mature' : '';
-    
-    this.element.className = `field ${statusClass} ${matureClass}`;
-    
-    const badge = this.element.querySelector('.field-status-badge');
-    badge.textContent = this.getStatusLabel();
-  }
-  
-  getStatusLabel() {
-    const labels = {
-      'empty': '🔲 Vazio',
-      'planted': `🌱 ${this.stage}`,
-      'growing': `🌾 ${this.stage}`,
-      'ready': '✅ Pronto'
-    };
-    return labels[this.status] || this.status;
-  }
-}
-
-// =============================================
-// FUNÇÕES DE INICIALIZAÇÃO
-// =============================================
+// ============================================
+// CARREGAR DADOS JSON
+// ============================================
 async function loadGameData() {
   try {
     const [nutrientsRes, diseasesRes, pestsRes] = await Promise.all([
@@ -326,313 +113,405 @@ async function loadGameData() {
     gameState.diseases = await diseasesRes.json();
     gameState.pests = await pestsRes.json();
     
-    logActivity('🎮', 'Sistema carregado com sucesso!');
-    logActivity('🇧🇷', 'Bem-vindo à Fazenda Brasil - Simulador de Soja!');
+    logMessage('🎮 Sistema iniciado com sucesso!');
+    logMessage('🌱 Bem-vindo à Fazenda do Produtor!');
     
   } catch (error) {
     console.error('Erro ao carregar dados:', error);
-    logActivity('⚠️', 'Modo offline - usando dados padrão');
+    logMessage('⚠️ Erro ao carregar dados. Verifique os arquivos JSON.');
   }
 }
 
-function initializeFields() {
-  // Criar 6 talhões em grid
-  const fieldConfigs = [
-    { id: 'A', row: 5, col: 2, size: 2 },
-    { id: 'B', row: 5, col: 5, size: 2 },
-    { id: 'C', row: 5, col: 8, size: 2 },
-    { id: 'D', row: 7, col: 2, size: 2 },
-    { id: 'E', row: 7, col: 5, size: 2 },
-    { id: 'F', row: 7, col: 8, size: 2 }
-  ];
-  
-  fieldConfigs.forEach(config => {
-    const field = new Field(config.id, config.row, config.col, config.size);
-    gameState.farm.fields.push(field);
-  });
-  
-  logActivity('🏡', `${gameState.farm.fields.length} talhões preparados`);
+// ============================================
+// FUNÇÕES DE UTILIDADE
+// ============================================
+function clamp(value, min = 0, max = 100) {
+  return Math.max(min, Math.min(max, value));
 }
 
-function initializeTasks() {
-  gameState.tasks = [
-    {
-      id: 'first-plant',
-      title: 'Primeira Plantação',
-      description: 'Plante soja no Talhão A',
-      icon: '🌱',
-      progress: 0,
-      target: 1,
-      reward: { xp: 50, gold: 100 },
-      completed: false
-    },
-    {
-      id: 'advance-10-days',
-      title: 'Avançar 10 Dias',
-      description: 'Complete um ciclo de crescimento',
-      icon: '⏱️',
-      progress: 0,
-      target: 10,
-      reward: { xp: 100, gold: 200 },
-      completed: false
-    }
-  ];
-  
-  updateTasksUI();
+function getCurrentStageData(dataSource) {
+  if (!dataSource || !dataSource.stages) return null;
+  return dataSource.stages[gameState.currentStage];
 }
 
-// =============================================
-// FUNÇÕES DE UI
-// =============================================
+function logMessage(text, type = 'info') {
+  const li = document.createElement('li');
+  li.textContent = text;
+  li.className = `log-${type}`;
+  elements.logList.prepend(li);
+  
+  // Manter apenas últimas 20 mensagens
+  while (elements.logList.children.length > 20) {
+    elements.logList.removeChild(elements.logList.lastChild);
+  }
+}
+
+// ============================================
+// ATUALIZAÇÃO DE UI
+// ============================================
 function updateUI() {
-  // Top Bar
-  elements.farmName.textContent = gameState.farm.name;
-  elements.playerLevel.textContent = `Nível ${gameState.player.level}`;
-  elements.goldAmount.textContent = gameState.player.gold.toLocaleString('pt-BR');
-  elements.premiumAmount.textContent = gameState.player.premium;
-  elements.xpAmount.textContent = `${gameState.player.xp} / ${gameState.player.xpToNext}`;
-  elements.temperature.textContent = `${gameState.time.temperature}°C`;
+  // Header
+  elements.dayCounter.textContent = gameState.currentDay;
   
-  // Bottom Bar
-  elements.cycleDay.textContent = gameState.time.day;
-  
-  // Calcular produção total
-  let totalProduction = 0;
-  gameState.farm.fields.forEach(field => {
-    if (field.status === 'ready') {
-      totalProduction += 60; // Estimativa simplificada
-    }
-  });
-  elements.production.textContent = `${totalProduction.toFixed(1)} sc/ha`;
-  
-  elements.profit.textContent = `R$ ${gameState.economy.profit.toLocaleString('pt-BR')}`;
-  
-  // Bulba message
-  updateBulbaMessage();
-}
-
-function updateBulbaMessage() {
-  const messages = [
-    '🌟 A fazenda está prosperando!',
-    '🌱 Hora de plantar mais soja!',
-    '💧 Não esqueça a nutrição das plantas!',
-    '🦠 Fique atento às doenças!',
-    '🐛 Monitore as pragas regularmente!',
-    '🚜 Está quase na hora da colheita!'
-  ];
-  
-  const randomMsg = messages[Math.floor(Math.random() * messages.length)];
-  elements.bulbaMessage.textContent = `💬 ${randomMsg}`;
-}
-
-function updateTasksUI() {
-  elements.taskList.innerHTML = '';
-  
-  gameState.tasks.forEach(task => {
-    if (task.completed) return;
-    
-    const taskEl = document.createElement('div');
-    taskEl.className = 'task-item';
-    taskEl.innerHTML = `
-      <div class="task-icon">${task.icon}</div>
-      <div class="task-info">
-        <div class="task-title">${task.title}</div>
-        <div class="task-desc">${task.description}</div>
-        <div class="task-progress">
-          <div class="progress-bar">
-            <div class="progress-fill" style="width: ${(task.progress / task.target) * 100}%"></div>
-          </div>
-          <span>${task.progress}/${task.target}</span>
-        </div>
-      </div>
-      <div class="task-reward">+${task.reward.xp} XP</div>
-    `;
-    
-    elements.taskList.appendChild(taskEl);
-  });
-}
-
-function showFieldInfo(field) {
-  elements.fieldStatus.textContent = field.getStatusLabel();
-  elements.fieldCrop.textContent = field.crop || 'Nenhuma';
-  elements.fieldStage.textContent = `${field.stage} - ${CONFIG.soyStages[field.stage].label}`;
-  elements.fieldDays.textContent = field.days;
-  
-  // Atualizar barras de saúde
-  const nutritionBar = elements.fieldInfo.querySelector('.mini-fill.nutrition');
-  const diseaseBar = elements.fieldInfo.querySelector('.mini-fill.disease');
-  const pestBar = elements.fieldInfo.querySelector('.mini-fill.pest');
-  
-  nutritionBar.style.width = `${field.health.nutrition}%`;
-  diseaseBar.style.width = `${field.health.disease}%`;
-  pestBar.style.width = `${field.health.pest}%`;
-  
-  // Atualizar textos
-  nutritionBar.parentElement.nextElementSibling.textContent = `${Math.round(field.health.nutrition)}%`;
-  diseaseBar.parentElement.nextElementSibling.textContent = `${Math.round(field.health.disease)}%`;
-  pestBar.parentElement.nextElementSibling.textContent = `${Math.round(field.health.pest)}%`;
-  
-  elements.fieldInfo.classList.remove('hidden');
-}
-
-function logActivity(icon, text) {
-  const entry = document.createElement('div');
-  entry.className = 'log-entry';
-  entry.innerHTML = `
-    <span class="log-icon">${icon}</span>
-    <span class="log-text">${text}</span>
-  `;
-  
-  elements.activityLog.prepend(entry);
-  
-  // Manter apenas 20 entradas
-  while (elements.activityLog.children.length > 20) {
-    elements.activityLog.removeChild(elements.activityLog.lastChild);
+  const stageData = getCurrentStageData(gameState.nutrients);
+  if (stageData) {
+    elements.soyStage.textContent = `${stageData.code} - ${stageData.label}`;
   }
   
-  gameState.activityLog.push({ icon, text, time: gameState.time.day });
+  elements.productivity.textContent = `${gameState.productivity.toFixed(1)} sc/ha`;
+  
+  // Atualizar visual do campo
+  updateCropVisual();
+  
+  // Saúde da lavoura
+  updateHealthBars();
+  
+  // Bulbasauro
+  updateBulbasaurUI();
+  
+  // Avisos
+  updateWarnings();
 }
 
-// =============================================
-// FUNÇÕES DE GAMEPLAY
-// =============================================
-function advanceTime() {
-  if (gameState.time.paused) return;
+function updateCropVisual() {
+  const cropClass = stageClasses[gameState.currentStage] || 'crop-stage-0';
+  elements.cropLayer.className = `field-layer crop ${cropClass}`;
+}
+
+function updateHealthBars() {
+  const { nutrition, disease, pest } = gameState.cropHealth;
   
-  const days = 3; // Avançar 3 dias
-  gameState.time.day += days;
+  // Nutrição
+  elements.nutritionBar.style.width = `${nutrition}%`;
+  elements.nutritionValue.textContent = `${Math.round(nutrition)}%`;
   
-  // Atualizar todos os talhões
-  gameState.farm.fields.forEach(field => field.advance(days));
+  // Doenças
+  elements.diseaseBar.style.width = `${disease}%`;
+  elements.diseaseValue.textContent = `${Math.round(disease)}%`;
   
-  // Atualizar clima
-  updateWeather();
+  // Pragas
+  elements.pestBar.style.width = `${pest}%`;
+  elements.pestValue.textContent = `${Math.round(pest)}%`;
+}
+
+function updateBulbasaurUI() {
+  const { energy, mood, trust } = gameState.bulbasaur;
   
-  // Atualizar tasks
-  updateTaskProgress('advance-10-days', days);
+  // Barras
+  elements.energyBar.style.width = `${energy}%`;
+  elements.energyValue.textContent = `${Math.round(energy)}%`;
+  
+  elements.moodBar.style.width = `${mood}%`;
+  elements.moodValue.textContent = `${Math.round(mood)}%`;
+  
+  // Atualizar classe da barra de humor
+  elements.moodBar.className = 'status-bar mood-bar';
+  if (mood >= 70) {
+    elements.moodBar.classList.add('happy');
+  } else if (mood <= 30) {
+    elements.moodBar.classList.add('sad');
+  }
+  
+  elements.trustBar.style.width = `${trust}%`;
+  elements.trustValue.textContent = `${Math.round(trust)}%`;
+  
+  // Texto de humor
+  updateBulbasaurMood();
+}
+
+function updateBulbasaurMood() {
+  const { energy, mood, trust } = gameState.bulbasaur;
+  const { nutrition, disease, pest } = gameState.cropHealth;
+  
+  let moodText = '';
+  let moodClass = '';
+  
+  // Verificar condições críticas
+  if (disease > 70 || pest > 70) {
+    moodText = '😰 Bulbasauro está muito preocupado com a lavoura!';
+    moodClass = 'stressed';
+  } else if (nutrition < 30) {
+    moodText = '😟 Bulbasauro sente que a lavoura precisa de nutrientes...';
+    moodClass = 'worried';
+  } else if (energy < 20) {
+    moodText = '😴 Bulbasauro está exausto, precisa descansar!';
+    moodClass = 'worried';
+  } else if (mood < 30) {
+    moodText = '😢 Bulbasauro está triste... que tal brincar um pouco?';
+    moodClass = 'worried';
+  } else if (mood >= 80 && trust >= 70 && nutrition >= 70) {
+    moodText = '🌟 Bulbasauro está radiante! A fazenda vai bem!';
+    moodClass = 'happy';
+  } else if (mood >= 60) {
+    moodText = '😊 Bulbasauro está feliz e confiante!';
+    moodClass = 'happy';
+  } else {
+    moodText = '🙂 Bulbasauro está observando a lavoura atentamente.';
+    moodClass = '';
+  }
+  
+  elements.bulbaMoodText.textContent = moodText;
+  elements.bulbaMoodText.className = `bulba-mood ${moodClass}`;
+}
+
+function updateWarnings() {
+  const stageData = getCurrentStageData(gameState.nutrients);
+  const diseaseData = getCurrentStageData(gameState.diseases);
+  
+  let warnings = [];
+  
+  // Avisos de janelas críticas
+  if (stageData && stageData.warning) {
+    warnings.push(`⚠️ ${stageData.warning}`);
+  }
+  
+  // Avisos de doenças críticas
+  if (diseaseData && diseaseData.pattern) {
+    warnings.push(`🦠 ${diseaseData.pattern}`);
+  }
+  
+  // Avisos baseados em valores
+  if (gameState.cropHealth.nutrition < 40) {
+    warnings.push('💚 Nutrição baixa! A planta está sofrendo.');
+  }
+  
+  if (gameState.cropHealth.disease > 60) {
+    warnings.push('🚨 Pressão de doenças alta! Ação urgente necessária.');
+  }
+  
+  if (gameState.cropHealth.pest > 60) {
+    warnings.push('🐛 Ataque severo de pragas! Controle imediato!');
+  }
+  
+  // Exibir avisos
+  if (warnings.length > 0) {
+    elements.warningPanel.innerHTML = warnings.join('<br>');
+    elements.warningPanel.classList.remove('hidden', 'success');
+    
+    if (gameState.cropHealth.disease > 70 || gameState.cropHealth.pest > 70) {
+      elements.warningPanel.classList.add('critical');
+    }
+  } else {
+    elements.warningPanel.classList.add('hidden');
+  }
+}
+
+// ============================================
+// LÓGICA DO CICLO DA CULTURA
+// ============================================
+function advanceDay() {
+  gameState.currentDay += 3; // Avança 3 dias de uma vez para acelerar
+  
+  // Verificar mudança de estádio
+  checkStageAdvancement();
+  
+  // Atualizar saúde da lavoura baseado nos dados
+  updateCropHealthFromData();
+  
+  // Desgaste natural do Bulbasauro
+  gameState.bulbasaur.energy = clamp(gameState.bulbasaur.energy - 8);
+  gameState.bulbasaur.mood = clamp(gameState.bulbasaur.mood - 5);
+  
+  // Influência da lavoura no Bulbasauro
+  updateBulbasaurFromCrop();
+  
+  // Calcular produtividade
+  calculateProductivity();
   
   // Atualizar UI
   updateUI();
   
-  logActivity('📅', `Avançado para o dia ${gameState.time.day}`);
-}
-
-function updateWeather() {
-  const climates = CONFIG.climates;
-  const randomClimate = climates[Math.floor(Math.random() * climates.length)];
+  // Log de avanço
+  logMessage(`📅 Dia ${gameState.currentDay} - ${gameState.currentStage}`);
   
-  gameState.time.weather = randomClimate.type;
-  gameState.time.temperature = Math.floor(
-    Math.random() * (randomClimate.temp[1] - randomClimate.temp[0]) + randomClimate.temp[0]
-  );
-  
-  const weatherIcon = elements.climate.querySelector('.weather-icon');
-  weatherIcon.textContent = randomClimate.icon;
-}
-
-function plantField() {
-  const emptyField = gameState.farm.fields.find(f => f.status === 'empty');
-  if (!emptyField) {
-    logActivity('⚠️', 'Nenhum talhão vazio disponível!');
-    return;
-  }
-  
-  if (gameState.player.gold < 200) {
-    logActivity('⚠️', 'Ouro insuficiente para plantar!');
-    return;
-  }
-  
-  if (emptyField.plant('Soja RR')) {
-    gameState.player.gold -= 200;
-    updateTaskProgress('first-plant', 1);
-    updateUI();
+  // Verificar fim do ciclo
+  if (gameState.currentStage === 'R8' && gameState.currentDay >= 120) {
+    endCycle();
   }
 }
 
-function harvestField() {
-  const readyField = gameState.farm.fields.find(f => f.status === 'ready');
-  if (!readyField) {
-    logActivity('⚠️', 'Nenhum talhão pronto para colheita!');
-    return;
-  }
+function checkStageAdvancement() {
+  const currentIndex = stageOrder.indexOf(gameState.currentStage);
+  const nextStage = stageOrder[currentIndex + 1];
   
-  const result = readyField.harvest();
-  gameState.player.gold += result.revenue;
-  gameState.economy.totalRevenue += result.revenue;
-  gameState.economy.profit = gameState.economy.totalRevenue - gameState.economy.totalCost;
-  
-  // Ganhar XP
-  gainXP(50);
-  
-  updateUI();
-}
-
-function updateTaskProgress(taskId, amount) {
-  const task = gameState.tasks.find(t => t.id === taskId);
-  if (!task || task.completed) return;
-  
-  task.progress = Math.min(task.target, task.progress + amount);
-  
-  if (task.progress >= task.target) {
-    completeTask(task);
-  }
-  
-  updateTasksUI();
-}
-
-function completeTask(task) {
-  task.completed = true;
-  
-  // Dar recompensas
-  gainXP(task.reward.xp);
-  gameState.player.gold += task.reward.gold;
-  
-  logActivity('🎯', `Missão completa: ${task.title} - +${task.reward.xp} XP, +R$${task.reward.gold}`);
-  updateUI();
-}
-
-function gainXP(amount) {
-  gameState.player.xp += amount;
-  
-  while (gameState.player.xp >= gameState.player.xpToNext) {
-    gameState.player.xp -= gameState.player.xpToNext;
-    gameState.player.level++;
-    gameState.player.xpToNext = Math.floor(gameState.player.xpToNext * 1.5);
+  if (nextStage && gameState.currentDay >= stageDays[nextStage]) {
+    gameState.currentStage = nextStage;
+    gameState.stageIndex = currentIndex + 1;
     
-    logActivity('⭐', `Level UP! Você atingiu o nível ${gameState.player.level}!`);
+    const stageData = getCurrentStageData(gameState.nutrients);
+    if (stageData) {
+      logMessage(`🌱 A soja avançou para ${stageData.code} - ${stageData.label}!`, 'success');
+      
+      if (stageData.critical) {
+        logMessage(`⚠️ JANELA CRÍTICA: ${stageData.warning}`, 'warning');
+      }
+    }
   }
 }
 
-// =============================================
-// EVENT LISTENERS
-// =============================================
-elements.advanceBtn.addEventListener('click', advanceTime);
-elements.plantBtn.addEventListener('click', plantField);
-elements.harvestBtn.addEventListener('click', harvestField);
-
-elements.pauseBtn.addEventListener('click', () => {
-  gameState.time.paused = !gameState.time.paused;
-  elements.pauseBtn.textContent = gameState.time.paused ? '▶️ Continuar' : '⏸️ Pausar';
-});
-
-// Fechar painel de info
-const closeBtn = elements.fieldInfo.querySelector('.close-btn');
-if (closeBtn) {
-  closeBtn.addEventListener('click', () => {
-    elements.fieldInfo.classList.add('hidden');
-  });
+function updateCropHealthFromData() {
+  // Atualizar nutrição (decresce com a absorção)
+  const nutrientData = getCurrentStageData(gameState.nutrients);
+  if (nutrientData && nutrientData.nutrients) {
+    // Pegar média dos principais nutrientes
+    const avgAbsorption = (
+      nutrientData.nutrients.nitrogen +
+      nutrientData.nutrients.phosphorus +
+      nutrientData.nutrients.potassium +
+      nutrientData.nutrients.calcium
+    ) / 4;
+    
+    // Nutrição diminui conforme aumenta a absorção necessária
+    gameState.cropHealth.nutrition = clamp(100 - avgAbsorption);
+  }
+  
+  // Atualizar doenças
+  const diseaseData = getCurrentStageData(gameState.diseases);
+  if (diseaseData && diseaseData.diseases) {
+    // Pegar a doença dominante
+    const diseases = diseaseData.diseases;
+    const maxDisease = Math.max(...Object.values(diseases));
+    gameState.cropHealth.disease = clamp(maxDisease);
+  }
+  
+  // Atualizar pragas
+  const pestData = getCurrentStageData(gameState.pests);
+  if (pestData && pestData.pests) {
+    // Pegar a praga dominante
+    const pests = pestData.pests;
+    const maxPest = Math.max(...Object.values(pests));
+    gameState.cropHealth.pest = clamp(maxPest);
+  }
 }
 
-// =============================================
+function updateBulbasaurFromCrop() {
+  const { nutrition, disease, pest } = gameState.cropHealth;
+  
+  // Lavoura saudável aumenta humor e confiança
+  if (nutrition > 70 && disease < 30 && pest < 30) {
+    gameState.bulbasaur.mood = clamp(gameState.bulbasaur.mood + 2);
+    gameState.bulbasaur.trust = clamp(gameState.bulbasaur.trust + 1);
+  }
+  
+  // Lavoura doente diminui humor
+  if (disease > 60 || pest > 60) {
+    gameState.bulbasaur.mood = clamp(gameState.bulbasaur.mood - 3);
+  }
+  
+  // Nutrição muito baixa preocupa o Bulbasauro
+  if (nutrition < 40) {
+    gameState.bulbasaur.mood = clamp(gameState.bulbasaur.mood - 2);
+  }
+}
+
+function calculateProductivity() {
+  // Fórmula simplificada de produtividade
+  const { nutrition, disease, pest } = gameState.cropHealth;
+  const { trust } = gameState.bulbasaur;
+  
+  // Base: 60 sc/ha
+  let productivity = 60;
+  
+  // Nutrição contribui positivamente (0-30 sc/ha)
+  productivity += (nutrition / 100) * 30;
+  
+  // Doenças reduzem (-0 a -20 sc/ha)
+  productivity -= (disease / 100) * 20;
+  
+  // Pragas reduzem (-0 a -15 sc/ha)
+  productivity -= (pest / 100) * 15;
+  
+  // Confiança do Bulbasauro dá bônus (0-10 sc/ha)
+  productivity += (trust / 100) * 10;
+  
+  // Estádios críticos com problemas penalizam mais
+  if (['R3', 'R4', 'R5', 'R6'].includes(gameState.currentStage)) {
+    if (disease > 70) productivity -= 10;
+    if (pest > 70) productivity -= 10;
+  }
+  
+  gameState.productivity = clamp(productivity, 0, 120);
+}
+
+function endCycle() {
+  logMessage('🎉 CICLO COMPLETO!', 'success');
+  logMessage(`🏆 Produtividade final: ${gameState.productivity.toFixed(1)} sc/ha`, 'success');
+  
+  if (gameState.productivity >= 90) {
+    logMessage('⭐⭐⭐ EXCELENTE MANEJO!', 'success');
+  } else if (gameState.productivity >= 70) {
+    logMessage('⭐⭐ BOM TRABALHO!', 'success');
+  } else if (gameState.productivity >= 50) {
+    logMessage('⭐ PODE MELHORAR!', 'warning');
+  } else {
+    logMessage('💡 Estude mais sobre o manejo da soja!', 'warning');
+  }
+  
+  elements.advanceBtn.disabled = true;
+  elements.advanceBtn.textContent = '✅ Ciclo Finalizado';
+}
+
+// ============================================
+// AÇÕES DO BULBASAURO
+// ============================================
+function feedBulbasaur() {
+  gameState.bulbasaur.energy = clamp(gameState.bulbasaur.energy + 20);
+  gameState.bulbasaur.mood = clamp(gameState.bulbasaur.mood + 5);
+  
+  updateUI();
+  logMessage('🍎 Você alimentou o Bulbasauro! Energia restaurada.');
+}
+
+function playWithBulbasaur() {
+  gameState.bulbasaur.mood = clamp(gameState.bulbasaur.mood + 18);
+  gameState.bulbasaur.trust = clamp(gameState.bulbasaur.trust + 3);
+  gameState.bulbasaur.energy = clamp(gameState.bulbasaur.energy - 8);
+  
+  updateUI();
+  logMessage('🎮 Você brincou com o Bulbasauro! Ele está mais feliz e confiante.');
+}
+
+function inspectCrop() {
+  const diseaseData = getCurrentStageData(gameState.diseases);
+  const pestData = getCurrentStageData(gameState.pests);
+  
+  logMessage('🔍 Bulbasauro inspecionou a lavoura...');
+  
+  if (diseaseData && diseaseData.dominant) {
+    const diseaseName = gameState.diseases.disease_info[diseaseData.dominant]?.name || 'Doença não identificada';
+    logMessage(`🦠 Principal doença: ${diseaseName} (${Math.round(gameState.cropHealth.disease)}%)`);
+  }
+  
+  if (pestData && pestData.dominant) {
+    const pestName = gameState.pests.pest_info[pestData.dominant]?.name || 'Praga não identificada';
+    logMessage(`🐛 Principal praga: ${pestName} (${Math.round(gameState.cropHealth.pest)}%)`);
+  }
+  
+  if (gameState.cropHealth.nutrition < 50) {
+    logMessage('💚 Nutrição deficiente! Considere aplicação foliar.');
+  }
+  
+  gameState.bulbasaur.trust = clamp(gameState.bulbasaur.trust + 2);
+  gameState.bulbasaur.energy = clamp(gameState.bulbasaur.energy - 5);
+  
+  updateUI();
+}
+
+// ============================================
+// EVENT LISTENERS
+// ============================================
+elements.advanceBtn.addEventListener('click', advanceDay);
+elements.feedBtn.addEventListener('click', feedBulbasaur);
+elements.playBtn.addEventListener('click', playWithBulbasaur);
+elements.inspectBtn.addEventListener('click', inspectCrop);
+
+// ============================================
 // INICIALIZAÇÃO
-// =============================================
+// ============================================
 async function init() {
   await loadGameData();
-  initializeFields();
-  initializeTasks();
   updateUI();
-  updateWeather();
 }
 
-// Iniciar o jogo
+// Iniciar o jogo quando a página carregar
 init();
